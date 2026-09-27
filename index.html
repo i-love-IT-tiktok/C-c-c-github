@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShadowBook - Mạng Xã Hội</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, 'Segoe UI', sans-serif; }
+  
+  body {
+    background: #18191a;
+    color: #e4e6eb;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  
+  /* ===== HEADER ===== */
+  .header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 60px;
+    background: #242526;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    border-bottom: 1px solid #3a3b3c;
+  }
+  
+  .logo {
+    font-size: 1.6em;
+    font-weight: 900;
+    background: linear-gradient(90deg, #00d4ff, #ff00e5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    cursor: pointer;
+  }
+  
+  .header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .icon-btn {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: #3a3b3c;
+    border: none;
+    color: #e4e6eb;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  
+  .icon-btn:hover { background: #4e4f50; }
+  
+  .badge {
+    position: absolute;
+    top: -2px; right: -2px;
+    background: #ff2d55;
+    color: #fff;
+    font-size: 10px;
+    min-width: 18px; height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    padding: 0 4px;
+  }
+  
+  .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00d4ff, #ff00e5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    border: 2px solid #3a3b3c;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  
+  /* ===== MAIN LAYOUT ===== */
+  .main {
+    display: grid;
+    grid-template-columns: 280px 1fr 300px;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 80px 20px 20px;
+    min-height: 100vh;
+  }
+  
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    position: sticky;
+    top: 80px;
+    height: fit-content;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+  }
+  
+  .sidebar::-webkit-scrollbar { width: 6px; }
+  .sidebar::-webkit-scrollbar-thumb { background: #3a3b3c; border-radius: 3px; }
+  
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  
+  .menu-item:hover { background: #3a3b3c; }
+  .menu-item.active { background: #2d2e2f; color: #00d4ff; }
+  
+  .menu-item .icon {
+    font-size: 22px;
+    width: 30px;
+    text-align: center;
+  }
+  
+  .sidebar-title {
+    font-size: 0.85em;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 15px 15px 8px;
+    font-weight: bold;
+  }
+  
+  /* ===== FEED ===== */
+  .feed { max-width: 680px; margin: 0 auto; width: 100%; }
+  
+  .composer {
+    background: #242526;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #3a3b3c;
+  }
+  
+  .composer-top {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  
+  .composer-input {
+    flex: 1;
+    background: #3a3b3c;
+    border: none;
+    border-radius: 20px;
+    padding: 12px 18px;
+    color: #e4e6eb;
+    font-size: 1em;
+    outline: none;
+    resize: none;
+    min-height: 45px;
+    max-height: 200px;
+    font-family: inherit;
+  }
+  
+  .composer-input::placeholder { color: #888; }
+  
+  .composer-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #3a3b3c;
+    padding-top: 12px;
+  }
+  
+  .composer-tools {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  
+  .tool-btn {
+    background: transparent;
+    border: none;
+    color: #b0b3b8;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  
+  .tool-btn:hover { background: #3a3b3c; color: #00d4ff; }
+  
+  .post-btn {
+    background: linear-gradient(90deg, #00d4ff, #ff00e5);
+    color: #fff;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95em;
+  }
+  
+  .post-btn:hover { transform: scale(1.05); }
+  .post-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  
+  .attachment-preview {
+    display: none;
+    margin-top: 12px;
+    padding: 10px;
+    background: #3a3b3c;
+    border-radius: 10px;
+    position: relative;
+  }
+  
+  .attachment-preview.show { display: block; }
+  .attachment-preview img,
+  .attachment-preview video {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+    display: block;
+  }
+  
+  .attachment-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    color: #b0b3b8;
+  }
+  
+  .remove-attach {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  /* ===== POST ===== */
+  .post {
+    background: #242526;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #3a3b3c;
+    overflow: hidden;
+    animation: fadeIn 0.3s;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .post-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+  }
+  
+  .post-info { flex: 1; }
+  .post-author { font-weight: bold; font-size: 0.95em; }
+  .post-time { color: #888; font-size: 0.8em; margin-top: 2px; }
+  
+  .post-menu {
+    background: transparent;
+    border: none;
+    color: #888;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 50%;
+  }
+  
+  .post-menu:hover { background: #3a3b3c; }
+  
+  .post-content {
+    padding: 0 15px 15px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  
+  .post-media {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+    background: #000;
+    display: block;
+  }
+  
+  .post-file {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    background: #3a3b3c;
+    margin: 0 15px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .post-file:hover { background: #4e4f50; }
+  
+  .post-file-icon {
+    font-size: 30px;
+    width: 50px; height: 50px;
+    background: #242526;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .post-stats {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    color: #b0b3b8;
+    font-size: 0.85em;
+    border-top: 1px solid #3a3b3c;
+  }
+  
+  .post-actions {
+    display: flex;
+    border-top: 1px solid #3a3b3c;
+    padding: 5px;
+  }
+  
+  .post-action {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #b0b3b8;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+    font-size: 0.9em;
+  }
+  
+  .post-action:hover { background: #3a3b3c; }
+  .post-action.liked { color: #ff2d55; }
+  
+  /* ===== RIGHT SIDEBAR ===== */
+  .contacts-list { margin-top: 10px; }
+  
+  .contact {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  
+  .contact:hover { background: #3a3b3c; }
+  
+  .contact-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00d4ff, #ff00e5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
+    font-size: 14px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  
+  .contact-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  
+  .online-dot {
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 12px; height: 12px;
+    background: #31a24c;
+    border-radius: 50%;
+    border: 2px solid #242526;
+  }
+  
+  .contact-name { font-size: 0.95em; font-weight: 500; }
+  
+  /* ===== CHAT WINDOW ===== */
+  .chat-window {
+    position: fixed;
+    bottom: 0;
+    right: 20px;
+    width: 340px;
+    height: 480px;
+    background: #242526;
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -5px 30px rgba(0,0,0,0.5);
+    display: none;
+    flex-direction: column;
+    z-index: 500;
+    border: 1px solid #3a3b3c;
+    border-bottom: none;
+  }
+  
+  .chat-window.open { display: flex; }
+  
+  .chat-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    background: #242526;
+    border-radius: 12px 12px 0 0;
+    border-bottom: 1px solid #3a3b3c;
+    cursor: pointer;
+  }
+  
+  .chat-header-info { flex: 1; }
+  .chat-header-name { font-weight: bold; font-size: 0.95em; }
+  .chat-header-status { font-size: 0.75em; color: #31a24c; }
+  
+  .chat-close {
+    background: transparent;
+    border: none;
+    color: #b0b3b8;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+  }
+  
+  .chat-close:hover { background: #3a3b3c; }
+  
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #18191a;
+  }
+  
+  .chat-messages::-webkit-scrollbar { width: 6px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: #3a3b3c; border-radius: 3px; }
+  
+  .message {
+    max-width: 75%;
+    padding: 8px 12px;
+    border-radius: 18px;
+    font-size: 0.9em;
+    line-height: 1.4;
+    word-break: break-word;
+    animation: fadeIn 0.2s;
+    position: relative;
+  }
+  
+  .message.me {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #00d4ff, #0084ff);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  
+  .message.other {
+    align-self: flex-start;
+    background: #3a3b3c;
+    color: #e4e6eb;
+    border-bottom-left-radius: 4px;
+  }
+  
+  .message img, .message video {
+    max-width: 100%;
+    border-radius: 10px;
+    margin-top: 5px;
+    display: block;
+  }
+  
+  .message-file {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    margin-top: 5px;
+    text-decoration: none;
+    color: inherit;
+    font-size: 0.85em;
+  }
+  
+  .message-time {
+    font-size: 0.65em;
+    opacity: 0.7;
+    margin-top: 3px;
+    text-align: right;
+  }
+  
+  .chat-input-area {
+    padding: 10px;
+    border-top: 1px solid #3a3b3c;
+    background: #242526;
+  }
+  
+  .chat-tools {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 8px;
+  }
+  
+  .chat-tool {
+    background: #3a3b3c;
+    border: none;
+    color: #b0b3b8;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  
+  .chat-tool:hover { background: #4e4f50; color: #00d4ff; }
+  
+  .chat-input-row {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .chat-input {
+    flex: 1;
+    background: #3a3b3c;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 15px;
+    color: #e4e6eb;
+    outline: none;
+    font-size: 0.9em;
+    font-family: inherit;
+  }
+  
+  .chat-send {
+    background: linear-gradient(135deg, #00d4ff, #ff00e5);
+    border: none;
+    color: #fff;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  
+  .chat-send:hover { transform: scale(1.1); }
+  
+  /* ===== MODAL ===== */
+  .modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  
+  .modal.active { display: flex; }
+  
+  .modal-content {
+    background: #242526;
+    border-radius: 15px;
+    padding: 25px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    border: 1px solid #3a3b3c;
+  }
+  
+  .modal-content h2 {
+    margin-bottom: 20px;
+    color: #00d4ff;
+  }
+  
+  .modal-content input,
+  .modal-content textarea {
+    width: 100%;
+    padding: 12px;
+    background: #3a3b3c;
+    border: 1px solid #4e4f50;
+    border-radius: 10px;
+    color: #e4e6eb;
+    font-size: 1em;
+    margin-bottom: 12px;
+    font-family: inherit;
+    outline: none;
+  }
+  
+  .modal-content input:focus,
+  .modal-content textarea:focus { border-color: #00d4ff; }
+  
+  .modal-btn {
+    padding: 12px 25px;
+    border-radius: 10px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: all 0.2s;
+    margin-right: 8px;
+  }
+  
+  .modal-btn.primary {
+    background: linear-gradient(90deg, #00d4ff, #ff00e5);
+    color: #fff;
+  }
+  
+  .modal-btn.secondary {
+    background: #3a3b3c;
+    color: #e4e6eb;
+  }
+  
+  .modal-btn:hover { transform: scale(1.05); }
+  
+  .user-result {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    background: #3a3b3c;
+  }
+  
+  .user-result .btn-add {
+    margin-left: auto;
+    padding: 6px 14px;
+    border-radius: 15px;
+    border: none;
+    background: #00d4ff;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.85em;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 12px;
+    background: #3a3b3c;
+    border: none;
+    border-radius: 10px;
+    color: #e4e6eb;
+    margin-bottom: 15px;
+    outline: none;
+    font-size: 1em;
+  }
+  
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    padding: 12px 25px;
+    background: #00d4ff;
+    color: #000;
+    border-radius: 25px;
+    font-weight: bold;
+    z-index: 2000;
+    transition: transform 0.3s;
+    box-shadow: 0 5px 25px rgba(0,212,255,0.4);
+  }
+  
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { background: #ff2d55; color: #fff; }
+  
+  .empty-feed {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+  }
+  
+  .empty-feed .icon { font-size: 70px; margin-bottom: 15px; }
+  
+  /* ===== TABLET ===== */
+  @media (max-width: 1100px) {
+    .main { grid-template-columns: 80px 1fr 280px; }
+    .menu-item span:not(.icon) { display: none; }
+    .sidebar-title { display: none; }
+    .menu-item { justify-content: center; padding: 12px; }
+  }
+  
+  /* ===== MOBILE ===== */
+  @media (max-width: 768px) {
+    .main { grid-template-columns: 1fr; padding: 75px 10px 80px; }
+    .sidebar, .right-sidebar { display: none; }
+    .feed { max-width: 100%; }
+    
+    .mobile-nav {
+      display: flex !important;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 60px;
+      background: #242526;
+      border-top: 1px solid #3a3b3c;
+      z-index: 100;
+      justify-content: space-around;
+      align-items: center;
+    }
+    
+    .mobile-nav .icon-btn { background: transparent; }
+    .chat-window { 
+      right: 0; left: 0; 
+      width: 100%; 
+      height: 100vh;
+      border-radius: 0;
+    }
+  }
+  
+  .mobile-nav { display: none; }
+  
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #18191a; }
+  ::-webkit-scrollbar-thumb { background: #3a3b3c; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #4e4f50; }
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <div class="logo" onclick="showFeed()">ShadowBook</div>
+  <div class="header-actions">
+    <button class="icon-btn" onclick="openSearch()" title="Tìm bạn bè">🔍</button>
+    <button class="icon-btn" onclick="openFriends()" title="Bạn bè">
+      👥<span class="badge" id="friendBadge" style="display:none">0</span>
+    </button>
+    <button class="icon-btn" onclick="toggleContacts()" title="Tin nhắn">
+      💬<span class="badge" id="msgBadge" style="display:none">0</span>
+    </button>
+    <button class="icon-btn" onclick="openProfile()" title="Hồ sơ">⚙️</button>
+    <div class="avatar" id="myAvatar" onclick="openProfile()">U</div>
+  </div>
+</div>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+  
+  <!-- LEFT SIDEBAR -->
+  <div class="sidebar">
+    <div class="menu-item active" onclick="showFeed()">
+      <span class="icon">🏠</span><span>Trang chủ</span>
+    </div>
+    <div class="menu-item" onclick="openFriends()">
+      <span class="icon">👥</span><span>Bạn bè</span>
+    </div>
+    <div class="menu-item" onclick="toggleContacts()">
+      <span class="icon">💬</span><span>Tin nhắn</span>
+    </div>
+    <div class="menu-item" onclick="openSearch()">
+      <span class="icon">🔍</span><span>Tìm bạn bè</span>
+    </div>
+    <div class="menu-item" onclick="openProfile()">
+      <span class="icon">👤</span><span>Hồ sơ</span>
+    </div>
+    
+    <div class="sidebar-title">Bạn bè</div>
+    <div class="contacts-list" id="friendsListSidebar"></div>
+  </div>
+  
+  <!-- FEED -->
+  <div class="feed" id="feedSection">
+    
+    <!-- COMPOSER -->
+    <div class="composer">
+      <div class="composer-top">
+        <div class="avatar" id="composerAvatar">U</div>
+        <textarea class="composer-input" id="postInput" placeholder="Bạn đang nghĩ gì?"></textarea>
+      </div>
+      
+      <div class="attachment-preview" id="attachPreview">
+        <button class="remove-attach" onclick="removeAttachment()">✕</button>
+        <div id="attachContent"></div>
+      </div>
+      
+      <div class="composer-actions">
+        <div class="composer-tools">
+          <button class="tool-btn" onclick="document.getElementById('postImageInput').click()">
+            🖼️ Ảnh
+          </button>
+          <button class="tool-btn" onclick="document.getElementById('postVideoInput').click()">
+            🎥 Video
+          </button>
+          <button class="tool-btn" onclick="document.getElementById('postFileInput').click()">
+            📎 Tệp
+          </button>
+        </div>
+        <button class="post-btn" id="postBtn" onclick="createPost()" disabled>Đăng</button>
+      </div>
+      
+      <input type="file" id="postImageInput" accept="image/*" hidden>
+      <input type="file" id="postVideoInput" accept="video/*" hidden>
+      <input type="file" id="postFileInput" hidden>
+    </div>
+    
+    <!-- POSTS -->
+    <div id="postsContainer"></div>
+    <div class="empty-feed" id="emptyFeed">
+      <div class="icon">📭</div>
+      <h3>Chưa có bài viết nào</h3>
+      <p>Hãy đăng bài viết đầu tiên!</p>
+    </div>
+  </div>
+  
+  <!-- RIGHT SIDEBAR -->
+  <div class="sidebar right-sidebar">
+    <div class="sidebar-title">Người liên hệ</div>
+    <div class="contacts-list" id="contactsList"></div>
+  </div>
+</div>
+
+<!-- ===== CHAT WINDOW ===== -->
+<div class="chat-window" id="chatWindow">
+  <div class="chat-header">
+    <div class="contact-avatar" id="chatAvatar">?</div>
+    <div class="chat-header-info">
+      <div class="chat-header-name" id="chatName">Chọn người để chat</div>
+      <div class="chat-header-status" id="chatStatus">Đang hoạt động</div>
+    </div>
+    <button class="chat-close" onclick="closeChat()">✕</button>
+  </div>
+  
+  <div class="chat-messages" id="chatMessages"></div>
+  
+  <div class="chat-input-area">
+    <div class="chat-tools">
+      <button class="chat-tool" onclick="document.getElementById('chatImageInput').click()" title="Gửi ảnh">🖼️</button>
+      <button class="chat-tool" onclick="document.getElementById('chatVideoInput').click()" title="Gửi video">🎥</button>
+      <button class="chat-tool" onclick="document.getElementById('chatFileInput').click()" title="Gửi tệp">📎</button>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" class="chat-input" id="chatInput" placeholder="Aa..." 
+             onkeydown="if(event.key==='Enter') sendMessage()">
+      <button class="chat-send" onclick="sendMessage()">➤</button>
+    </div>
+    <input type="file" id="chatImageInput" accept="image/*" hidden>
+    <input type="file" id="chatVideoInput" accept="video/*" hidden>
+    <input type="file" id="chatFileInput" hidden>
+  </div>
+</div>
+
+<!-- ===== SEARCH MODAL ===== -->
+<div class="modal" id="searchModal">
+  <div class="modal-content">
+    <h2>🔍 Tìm bạn bè</h2>
+    <input class="search-input" id="searchInput" placeholder="Nhập tên người dùng..." oninput="searchUsers()">
+    <div id="searchResults"></div>
+    <button class="modal-btn secondary" onclick="closeModal('searchModal')" style="margin-top:15px">Đóng</button>
+  </div>
+</div>
+
+<!-- ===== FRIENDS MODAL ===== -->
+<div class="modal" id="friendsModal">
+  <div class="modal-content">
+    <h2>👥 Bạn bè của bạn</h2>
+    <div id="friendsListModal"></div>
+    <button class="modal-btn secondary" onclick="closeModal('friendsModal')" style="margin-top:15px">Đóng</button>
+  </div>
+</div>
+
+<!-- ===== PROFILE MODAL ===== -->
+<div class="modal" id="profileModal">
+  <div class="modal-content">
+    <h2>👤 Hồ sơ của bạn</h2>
+    <div style="display:flex;justify-content:center;margin-bottom:20px">
+      <div class="avatar" style="width:100px;height:100px;font-size:40px" id="profileAvatar">U</div>
+    </div>
+    <input type="text" id="profileNameInput" placeholder="Tên của bạn">
+    <textarea id="profileBioInput" placeholder="Giới thiệu về bạn..." rows="3"></textarea>
+    <label style="display:block;color:#00d4ff;margin-bottom:8px;font-size:0.9em">Ảnh đại diện</label>
+    <input type="file" id="profileAvatarInput" accept="image/*" style="padding:8px">
+    <div style="margin-top:15px">
+      <button class="modal-btn primary" onclick="saveProfile()">Lưu</button>
+      <button class="modal-btn secondary" onclick="closeModal('profileModal')">Hủy</button>
+    </div>
+    <div style="margin-top:25px;padding-top:20px;border-top:1px solid #3a3b3c">
+      <button class="modal-btn secondary" onclick="clearAllData()" style="background:#ff2d55;color:#fff">
+        🗑 Xóa toàn bộ dữ liệu
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================
+// Made By '@«« S H A D O W »»' on Discord
+// ShadowBook - Mini Social Network
+// ============================================
+
+const DB_NAME = 'ShadowBookDB';
+const DB_VERSION = 1;
+
+let db = null;
+let currentUser = null;
+let currentChatUser = null;
+let pendingAttachment = null;
+let allUsers = [];
+let allPosts = [];
+let allMessages = [];
+let allFriends = [];
+
+// ===== DATABASE =====
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e) => {
+      const database = e.target.result;
+      if (!database.objectStoreNames.contains('users')) {
+        database.createObjectStore('users', { keyPath: 'id', autoIncrement: true });
+      }
+      if (!database.objectStoreNames.contains('posts')) {
+        database.createObjectStore('posts', { keyPath: 'id', autoIncrement: true });
+      }
+      if (!database.objectStoreNames.contains('messages')) {
+        database.createObjectStore('messages', { keyPath: 'id', autoIncrement: true });
+      }
+      if (!database.objectStoreNames.contains('friends')) {
+        database.createObjectStore('friends', { keyPath: 'id', autoIncrement: true });
+      }
+      if (!database.objectStoreNames.contains('me')) {
+        database.createObjectStore('me', { keyPath: 'id' });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbAdd(store, data) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).add(data);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbPut(store, data) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).put(data);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbGetAll(store) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).getAll();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbGet(store, key) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).get(key);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbDelete(store, key) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).delete(key);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbClear(store) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).clear();
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+// ===== INIT =====
+async function init() {
+  db = await openDB();
+  
+  // Load hoặc tạo user hiện tại
+  let me = await dbGet('me', 'current');
+  if (!me) {
+    me = {
+      id: 'current',
+      name: 'Người dùng ' + Math.floor(Math.random()*1000),
+      bio: '',
+      avatar: null,
+      username: 'user' + Date.now().toString(36).slice(-5),
+      createdAt: new Date().toISOString()
+    };
+    await dbPut('me', me);
+  }
+  currentUser = me;
+  
+  // Tạo một số user demo nếu chưa có
+  allUsers = await dbGetAll('users');
+  if (allUsers.length === 0) {
+    const demoUsers = [
+      { name: 'Nguyễn Văn A', username: 'vana', bio: 'Yêu công nghệ', avatar: null, isDemo: true, online: true },
+      { name: 'Trần Thị B', username: 'thib', bio: 'Thích du lịch', avatar: null, isDemo: true, online: true },
+      { name: 'Lê Văn C', username: 'vanc', bio: 'Gamer', avatar: null, isDemo: true, online: false },
+      { name: 'Phạm Thị D', username: 'thid', bio: 'Ca sĩ nghiệp dư', avatar: null, isDemo: true, online: true },
+      { name: 'Hoàng Văn E', username: 'vane', bio: 'Lập trình viên', avatar: null, isDemo: true, online: false }
+    ];
+    for (const u of demoUsers) {
+      await dbAdd('users', u);
+    }
+    allUsers = await dbGetAll('users');
+  }
+  
+  updateMyAvatar();
+  await loadAll();
+  await renderAll();
+}
+
+async function loadAll() {
+  allPosts = await dbGetAll('posts');
+  allMessages = await dbGetAll('messages');
+  allFriends = await dbGetAll('friends');
+  allUsers = await dbGetAll('users');
+}
+
+async function renderAll() {
+  renderPosts();
+  renderFriends();
+  renderContacts();
+  updateBadges();
+}
+
+// ===== HELPERS =====
+function showToast(msg.floor, isError = false) {
+  const(d t = document.getElementById('toast');
+ iff t.textContent = msg;
+  t.className/ = 'toast show' + (isError60 ? ' error' : '');
+  setTimeout(() => t.className = 'toast' + (isError ? ' error' : ''), 2500);
+}
+
+function) escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function getInitial(name) {
+  if (!name) return '?';
+  return name.trim().charAt(0).toUpperCase();
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+}
+
+function formatTime(iso) {
+  const d = new Date(iso);
+  const diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return 'vừa xong';
+  if (diff < 3600) return Math + ' phút trước';
+  if (diff < 86400) return Math.floor(diff/3600) + ' giờ trước';
+  if (diff < 604800) return Math.floor(diff/86400) + ' ngày trước';
+  return d.toLocaleDateString('vi-VN');
+}
+
+function formatMsgTime(iso) {
+  const d = new Date(iso);
+  return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+}
+
+function fileIcon(type) {
+  if (!type) return '📎';
+  if (type.startsWith('image/')) return '🖼️';
+  if (type.startsWith('video/')) return '🎥';
+  if (type.startsWith('audio/')) return '🎵';
+  if (type.includes('pdf')) return '📕';
+  if (type.includes('zip') || type.includes('rar')) return '🗜️';
+  return '📎';
+}
+
+function isFriend(userId) {
+  return allFriends.some(f => f.userId === userId);
+}
+
+function getFriendIds() {
+  return allFriends.map(f => f.userId);
+}
+
+// ===== AVATAR =====
+function updateMyAvatar() {
+  const el = document.getElementById('myAvatar');
+  const comp = document.getElementById('composerAvatar');
+  const prof = document.getElementById('profileAvatar');
+  
+  [el, comp, prof].forEach(node => {
+    if (!node) return;
+    if (currentUser.avatar) {
+      node.innerHTML = `<img src="${currentUser.avatar}">`;
+    } else {
+      node.textContent = getInitial(currentUser.name);
+    }
+  });
+}
+
+function renderAvatarHtml(user) {
+  if (user.avatar) {
+    return `<img src="${user.avatar}">`;
+  }
+  return getInitial(user.name);
+}
+
+// ===== POSTS =====
+async function createPost() {
+  const content = document.getElementById('postInput').value.trim();
+  if (!content && !pendingAttachment) return;
+  
+  const post = {
+    authorId: 'me',
+    authorName: currentUser.name,
+    authorAvatar: currentUser.avatar,
+    content: content,
+    attachment: pendingAttachment ? {
+      type: pendingAttachment.type,
+      name: pendingAttachment.name,
+      size: pendingAttachment.size,
+      mimeType: pendingAttachment.mimeType,
+      data: pendingAttachment.data
+    } : null,
+    likes: 0,
+    liked: false,
+    comments: [],
+    createdAt: new Date().toISOString()
+  };
+  
+  await dbAdd('posts', post);
+  document.getElementById('postInput').value = '';
+  removeAttachment();
+  showToast('✅ Đã đăng bài viết!');
+  await loadAll();
+  renderPosts();
+  updatePostButtonState();
+}
+
+function updatePostButtonState() {
+  const content = document.getElementById('postInput').value.trim();
+  document.getElementById('postBtn').disabled = !content && !pendingAttachment;
+}
+
+document.getElementById('postInput').addEventListener('input', updatePostButtonState);
+
+// Attachment handling
+['postImageInput', 'postVideoInput', 'postFileInput'].forEach(id => {
+  document.getElementById(id).addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    if (file.size > 50 * 1024 * 1024) {
+      showToast('File quá lớn! Tối đa 50MB', true);
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      pendingAttachment = {
+        type: file.type.startsWith('image/') ? 'image' : file.type.startsWith('video/') ? 'video' : 'file',
+        name: file.name,
+        size: file.size,
+        mimeType: file.type,
+        data: ev.target.result
+      };
+      renderAttachmentPreview();
+      updatePostButtonState();
+    };
+    reader.readAsDataURL(file);
+  });
+});
+
+function renderAttachmentPreview() {
+  const preview = document.getElementById('attachPreview');
+  const content = document.getElementById('attachContent');
+  if (!pendingAttachment) {
+    preview.classList.remove('show');
+    return;
+  }
+  
+  preview.classList.add('show');
+  if (pendingAttachment.type === 'image') {
+    content.innerHTML = `<img src="${pendingAttachment.data}">`;
+  } else if (pendingAttachment.type === 'video') {
+    content.innerHTML = `<video src="${pendingAttachment.data}" controls></video>`;
+  } else {
+    content.innerHTML = `
+      <div class="attachment-info">
+        <div style="font-size:30px">${fileIcon(pendingAttachment.mimeType)}</div>
+        <div>
+          <div style="font-weight:bold">${escapeHtml(pendingAttachment.name)}</div>
+          <div style="font-size:0.85em;color:#888">${formatSize(pendingAttachment.size)}</div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function removeAttachment() {
+  pendingAttachment = null;
+  document.getElementById('postImageInput').value = '';
+  document.getElementById('postVideoInput').value = '';
+  document.getElementById('postFileInput').value = '';
+  renderAttachmentPreview();
+  updatePostButtonState();
+}
+
+function renderPosts() {
+  const container = document.getElementById('postsContainer');
+  const empty = document.getElementById('emptyFeed');
+  
+  if (allPosts.length === 0) {
+    container.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  
+  const sorted = [...allPosts].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  container.innerHTML = sorted.map(p => {
+    let mediaHtml = '';
+    if (p.attachment) {
+      const a = p.attachment;
+      if (a.type === 'image') {
+        mediaHtml = `<img class="post-media" src="${a.data}" onclick="openFullImage('${a.data}')">`;
+      } else if (a.type === 'video') {
+        mediaHtml = `<video class="post-media" src="${a.data}" controls></video>`;
+      } else {
+        mediaHtml = `
+          <div class="post-file" onclick="downloadFile('${a.data}', '${escapeHtml(a.name)}')">
+            <div class="post-file-icon">${fileIcon(a.mimeType)}</div>
+            <div>
+              <div style="font-weight:bold">${escapeHtml(a.name)}</div>
+              <div style="font-size:0.85em;color:#888">${formatSize(a.size)} · Click để tải</div>
+            </div>
+          </div>
+        `;
+      }
+    }
+    
+    const avatarHtml = p.authorAvatar 
+      ? `<img src="${p.authorAvatar}">` 
+      : getInitial(p.authorName);
+    
+    return `
+      <div class="post" data-id="${p.id}">
+        <div class="post-header">
+          <div class="avatar">${avatarHtml}</div>
+          <div class="post-info">
+            <div class="post-author">${escapeHtml(p.authorName)}</div>
+            <div class="post-time">${formatTime(p.createdAt)}</div>
+          </div>
+          <button class="post-menu" onclick="deletePost(${p.id})">🗑</button>
+        </div>
+        ${p.content ? `<div class="post-content">${escapeHtml(p.content)}</div>` : ''}
+        ${mediaHtml}
+        <div class="post-stats">
+          <span>❤️ ${p.likes || 0} lượt thích</span>
+          <span>💬 ${(p.comments || []).length} bình luận</span>
+        </div>
+        <div class="post-actions">
+          <button class="post-action ${p.liked ? 'liked' : ''}" onclick="likePost(${p.id})">
+            ${p.liked ? '❤️' : '🤍'} Thích
+          </button>
+          <button class="post-action" onclick="downloadPost(${p.id})">⬇️ Tải</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function likePost(id) {
+  const post = allPosts.find(p => p.id === id);
+  if (!post) return;
+  post.liked = !post.liked;
+  post.likes = (post.likes || 0) + (post.liked ? 1 : -1);
+  if (post.likes < 0) post.likes = 0;
+  await dbPut('posts', post);
+  await loadAll();
+  renderPosts();
+}
+
+async function deletePost(id) {
+  if (!confirm('Xóa bài viết này?')) return;
+  await dbDelete('posts', id);
+  showToast('🗑 Đã xóa bài viết');
+  await loadAll();
+  renderPosts();
+}
+
+function downloadPost(id) {
+  const post = allPosts.find(p => p.id === id);
+  if (!post || !post.attachment) {
+    showToast('Bài viết không có tệp đính kèm', true);
+    return;
+  }
+  downloadFile(post.attachment.data, post.attachment.name);
+}
+
+function downloadFile(dataUrl, filename) {
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = filename;
+  a.click();
+}
+
+function openFullImage(dataUrl) {
+  const w = window.open('');
+  w.document.write(`<body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;height:100vh"><img src="${dataUrl}" style="max-width:100%;max-height:100%"></body>`);
+}
+
+// ===== FRIENDS =====
+function openFriends() {
+  const list = document.getElementById('friendsListModal');
+  const friendIds = getFriendIds();
+  const friends = allUsers.filter(u => friendIds.includes(u.id));
+  
+  if (friends.length === 0) {
+    list.innerHTML = '<p style="color:#888;text-align:center;padding:20px">Bạn chưa có người bạn nào. Hãy tìm và kết bạn!</p>';
+  } else {
+    list.innerHTML = friends.map(u => `
+      <div class="user-result">
+        <div class="contact-avatar">${renderAvatarHtml(u)}</div>
+        <div>
+          <div style="font-weight:bold">${escapeHtml(u.name)}</div>
+          <div style="font-size:0.8em;color:#888">@${escapeHtml(u.username)}</div>
+        </div>
+        <button class="btn-add" onclick="openChatWith(${u.id});closeModal('friendsModal')">💬 Chat</button>
+      </div>
+    `).join('');
+  }
+  document.getElementById('friendsModal').classList.add('active');
+}
+
+function openSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchResults').innerHTML = '';
+  searchUsers();
+  document.getElementById('searchModal').classList.add('active');
+  setTimeout(() => document.getElementById('searchInput').focus(), 100);
+}
+
+function searchUsers() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const results = document.getElementById('searchResults');
+  
+  const filtered = allUsers.filter(u => 
+    u.name.toLowerCase().includes(q) || u.username.toLowerCase().includes(q)
+  );
+  
+  if (filtered.length === 0) {
+    results.innerHTML = '<p style="color:#888;text-align:center;padding:15px">Không tìm thấy người dùng</p>';
+    return;
+  }
+  
+  results.innerHTML = filtered.map(u => {
+    const friend = isFriend(u.id);
+    return `
+      <div class="user-result">
+        <div class="contact-avatar">${renderAvatarHtml(u)}</div>
+        <div style="flex:1">
+          <div style="font-weight:bold">${escapeHtml(u.name)}</div>
+          <div style="font-size:0.8em;color:#888">@${escapeHtml(u.username)} · ${escapeHtml(u.bio || '')}</div>
+        </div>
+        ${friend 
+          ? `<button class="btn-add" style="background:#31a24c" onclick="openChatWith(${u.id});closeModal('searchModal')">💬 Chat</button>`
+          : `<button class="btn-add" onclick="addFriend(${u.id})">+ Kết bạn</button>`
+        }
+      </div>
+    `;
+  }).join('');
+}
+
+async function addFriend(userId) {
+  if (isFriend(userId)) {
+    showToast('Đã là bạn bè rồi!', true);
+    return;
+  }
+  const u = allUsers.find(x => x.id === userId);
+  await dbAdd('friends', { userId, name: u.name, addedAt: new Date().toISOString() });
+  showToast('✅ Đã kết bạn với ' + u.name);
+  await loadAll();
+  await renderAll();
+  searchUsers();
+}
+
+async function renderFriends() {
+  const sidebar = document.getElementById('friendsListSidebar');
+  const friendIds = getFriendIds();
+  const friends = allUsers.filter(u => friendIds.includes(u.id));
+  
+  if (friends.length === 0) {
+    sidebar.innerHTML = '<p style="padding:10px 15px;color:#888;font-size:0.85em">Chưa có bạn bè</p>';
+    return;
+  }
+  
+  sidebar.innerHTML = friends.map(u => `
+    <div class="contact" onclick="openChatWith(${u.id})">
+      <div class="contact-avatar">
+        ${renderAvatarHtml(u)}
+        ${u.online ? '<div class="online-dot"></div>' : ''}
+      </div>
+      <div class="contact-name">${escapeHtml(u.name)}</div>
+    </div>
+  `).join('');
+}
+
+async function renderContacts() {
+  const list = document.getElementById('contactsList');
+  const friendIds = getFriendIds();
+  const friends = allUsers.filter(u => friendIds.includes(u.id));
+  
+  if (friends.length === 0) {
+    list.innerHTML = '<p style="padding:10px 15px;color:#888;font-size:0.85em">Kết bạn để chat</p>';
+    return;
+  }
+  
+  list.innerHTML = friends.map(u => {
+    const lastMsg = [...allMessages]
+      .filter(m => m.fromId === u.id || m.toId === u.id)
+      .sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+    return `
+      <div class="contact" onclick="openChatWith(${u.id})">
+        <div class="contact-avatar">
+          ${renderAvatarHtml(u)}
+          ${u.online ? '<div class="online-dot"></div>' : ''}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div class="contact-name">${escapeHtml(u.name)}</div>
+          ${lastMsg ? `<div style="font-size:0.75em;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(lastMsg.text || '📎 Tệp đính kèm')}</div>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ===== CHAT =====
+function toggleContacts() {
+  const win = document.getElementById('chatWindow');
+  if (win.classList.contains('open')) {
+    closeChat();
+  } else {
+    const friendIds = getFriendIds();
+    if (friendIds.length === 0) {
+      showToast('Kết bạn trước để chat!', true);
+      openSearch();
+      return;
+    }
+    openChatWith(friendIds[0]);
+  }
+}
+
+function openChatWith(userId) {
+  const u = allUsers.find(x => x.id === userId);
+  if (!u) return;
+  
+  currentChatUser = u;
+  document.getElementById('chatName').textContent = u.name;
+  document.getElementById('chatStatus').textContent = u.online ? 'Đang hoạt động' : 'Offline';
+  document.getElementById('chatAvatar').innerHTML = renderAvatarHtml(u);
+  document.getElementById('chatWindow').classList.add('open');
+  
+  renderMessages();
+  setTimeout(() => document.getElementById('chatInput').focus(), 100);
+}
+
+function closeChat() {
+  document.getElementById('chatWindow').classList.remove('open');
+  currentChatUser = null;
+}
+
+function renderMessages() {
+  if (!currentChatUser) return;
+  const container = document.getElementById('chatMessages');
+  const msgs = allMessages
+    .filter(m => (m.fromId === 'me' && m.toId === currentChatUser.id) || 
+                 (m.fromId === currentChatUser.id && m.toId === 'me'))
+    .sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
+  
+  if (msgs.length === 0) {
+    container.innerHTML = '<p style="color:#888;text-align:center;padding:20px;font-size:0.85em">Bắt đầu cuộc trò chuyện</p>';
+    return;
+  }
+  
+  container.innerHTML = msgs.map(m => {
+    const mine = m.fromId === 'me';
+    let content = '';
+    
+    if (m.text) {
+      content += `<div>${escapeHtml(m.text)}</div>`;
+    }
+    
+    if (m.attachment) {
+      const a = m.attachment;
+      if (a.type === 'image') {
+        content += `<img src="${a.data}" onclick="openFullImage('${a.data}')">`;
+      } else if (a.type === 'video') {
+        content += `<video src="${a.data}" controls></video>`;
+      } else {
+        content += `<div class="message-file" onclick="downloadFile('${a.data}', '${escapeHtml(a.name)}')">
+          <span style="font-size:20px">${fileIcon(a.mimeType)}</span>
+          <span>${escapeHtml(a.name)}</span>
+        </div>`;
+      }
+    }
+    
+    return `
+      <div class="message ${mine ? 'me' : 'other'}">
+        ${content}
+        <div class="message-time">${formatMsgTime(m.createdAt)}</div>
+      </div>
+    `;
+  }).join('');
+  
+  container.scrollTop = container.scrollHeight;
+}
+
+async function sendMessage() {
+  if (!currentChatUser) return;
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  
+  const msg = {
+    fromId: 'me',
+    toId: currentChatUser.id,
+    text: text,
+    attachment: pendingAttachment ? {
+      type: pendingAttachment.type,
+      name: pendingAttachment.name,
+      size: pendingAttachment.size,
+      mimeType: pendingAttachment.mimeType,
+      data: pendingAttachment.data
+    } : null,
+    createdAt: new Date().toISOString()
+  };
+  
+  if (!text && !msg.attachment) return;
+  
+  await dbAdd('messages', msg);
+  input.value = '';
+  removeAttachment();
+  await loadAll();
+  renderMessages();
+  renderContacts();
+  
+  // Auto-reply sau 1-2s
+  setTimeout(async () => {
+    const replies = [
+      'Ok bạn!', 'Hay quá!', 'Mình hiểu rồi', 'Để mình xem đã',
+      '😄', 'Cảm ơn bạn nhé!', 'Nghe hay đấy', 'Vậy à?',
+      'Mình cũng nghĩ vậy', '👍', 'Ok luôn', 'Tuyệt vời!'
+    ];
+    const reply = {
+      fromId: currentChatUser.id,
+      toId: 'me',
+      text: replies[Math.floor(Math.random() * replies.length)],
+      createdAt: new Date().toISOString()
+    };
+    await dbAdd('messages', reply);
+    await loadAll();
+    if (currentChatUser) {
+      renderMessages();
+      renderContacts();
+    }
+  }, 1000 + Math.random() * 2000);
+}
+
+// Chat attachments
+['chatImageInput', 'chatVideoInput', 'chatFileInput'].forEach(id => {
+  document.getElementById(id).addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 50 * 1024 * 1024) {
+      showToast('File quá lớn! Tối đa 50MB', true);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const attachment = {
+        type: file.type.startsWith('image/') ? 'image' : file.type.startsWith('video/') ? 'video' : 'file',
+        name: file.name,
+        size: file.size,
+        mimeType: file.type,
+        data: ev.target.result
+      };
+      
+      if (!currentChatUser) return;
+      
+      const msg = {
+        fromId: 'me',
+        toId: currentChatUser.id,
+        text: '',
+        attachment,
+        createdAt: new Date().toISOString()
+      };
+      await dbAdd('messages', msg);
+      await loadAll();
+      renderMessages();
+      renderContacts();
+    };
+    reader.readAsDataURL(file);
+  });
+});
+
+// ===== PROFILE =====
+function openProfile() {
+  document.getElementById('profileNameInput').value = currentUser.name;
+  document.getElementById('profileBioInput').value = currentUser.bio || '';
+  document.getElementById('profileModal').classList.add('active');
+}
+
+async function saveProfile() {
+  const name = document.getElementById('profileNameInput').value.trim();
+  const bio = document.getElementById('profileBioInput').value.trim();
+  const avatarFile = document.getElementById('profileAvatarInput').files[0];
+  
+  if (!name) {
+    showToast('Tên không được để trống!', true);
+    return;
+  }
+  
+  currentUser.name = name;
+  currentUser.bio = bio;
+  
+  if (avatarFile) {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      currentUser.avatar = e.target.result;
+      await dbPut('me', currentUser);
+      updateMyAvatar();
+      // Update posts author
+      for (const p of allPosts.filter(x => x.authorId === 'me')) {
+        p.authorName = name;
+        p.authorAvatar = currentUser.avatar;
+        await dbPut('posts', p);
+      }
+      await loadAll();
+      renderAll();
+      showToast('✅ Đã lưu hồ sơ!');
+      closeModal('profileModal');
+    };
+    reader.readAsDataURL(avatarFile);
+  } else {
+    await dbPut('me', currentUser);
+    updateMyAvatar();
+    await loadAll();
+    renderAll();
+    showToast('✅ Đã lưu hồ sơ!');
+    closeModal('profileModal');
+  }
+}
+
+async function clearAllData() {
+  if (!confirm('XÓA TOÀN BỘ DỮ LIỆU? Không thể hoàn tác!')) return;
+  if (!confirm('Chắc chắn chưa? Tất cả bài viết, tin nhắn, bạn bè sẽ mất!')) return;
+  await dbClear('posts');
+  await dbClear('messages');
+  await dbClear('friends');
+  await dbClear('users');
+  await dbClear('me');
+  showToast('🗑 Đã xóa toàn bộ. Đang tải lại...');
+  setTimeout(() => location.reload(), 1000);
+}
+
+// ===== BADGES =====
+function updateBadges() {
+  const friendIds = getFriendIds();
+  const unread = allMessages.filter(m => m.toId === 'me' && !m.read).length;
+  
+  const fb = document.getElementById('friendBadge');
+  const mb = document.getElementById('msgBadge');
+  
+  if (friendIds.length > 0) {
+    fb.style.display = 'flex';
+    fb.textContent = friendIds.length;
+  } else fb.style.display = 'none';
+  
+  if (unread > 0) {
+    mb.style.display = 'flex';
+    mb.textContent = unread;
+  } else mb.style.display = 'none';
+}
+
+// ===== MODALS =====
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+document.querySelectorAll('.modal').forEach(m => {
+  m.addEventListener('click', (e) => {
+    if (e.target === m) m.classList.remove('active');
+  });
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal.active').forEach(m => m.classList.remove('active'));
+  }
+});
+
+// ===== START =====
+init().catch(err => {
+  console.error(err);
+  alert('Lỗi khởi tạo: ' + err.message);
+});
+</script>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav">
+  <button class="icon-btn" onclick="showFeed()">🏠</button>
+  <button class="icon-btn" onclick="openSearch()">🔍</button>
+  <button class="icon-btn" onclick="toggleContacts()">💬</button>
+  <button class="icon-btn" onclick="openFriends()">👥</button>
+  <button class="icon-btn" onclick="openProfile()">👤</button>
+</div>
+
+</body>
+</html>
