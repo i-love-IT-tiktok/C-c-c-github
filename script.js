@@ -3,7 +3,7 @@
 // HQL_Book - Main Script (Infinite Like Edition)
 // ============================================
 
-const DB_NAME = 'HQL_BookDB';
+const DB_NAME = 'Xnhau';
 const DB_VERSION = 1;
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
