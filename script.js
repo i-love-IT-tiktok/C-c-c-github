@@ -1,6 +1,6 @@
 // ============================================
 // Made By '@«« S H A D O W »»' on Discord
-// HQL_Book - Main Script
+// HQL_Book - Main Script (Infinite Like Edition)
 // ============================================
 
 const DB_NAME = 'HQL_BookDB';
@@ -154,7 +154,7 @@ function showToast(msg, isError = false) {
   if (!t) return;
   t.textContent = msg;
   t.className = 'toast show' + (isError ? ' error' : '');
-  setTimeout(() => t.className = 'toast' + (isError ? ' error' : ''), 2500);
+  setTimeout(() => t.className = 'toast' + (isError ? ' error' : ''), 2000);
 }
 
 function escapeHtml(str) {
@@ -188,6 +188,12 @@ function formatMsgTime(iso) {
   return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
 }
 
+function formatNumber(n) {
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+  return n.toString();
+}
+
 function fileIcon(type) {
   if (!type) return '📎';
   if (type.startsWith('image/')) return '🖼️';
@@ -204,6 +210,25 @@ function isFriend(userId) {
 
 function getFriendIds() {
   return allFriends.map(f => f.userId);
+}
+
+// ===== HEART ANIMATION =====
+function spawnHearts(x, y, count = 1) {
+  const container = document.getElementById('heartContainer');
+  if (!container) return;
+  
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const heart = document.createElement('div');
+      heart.className = 'floating-heart';
+      heart.textContent = ['❤️','💖','💗','💕','💓','🩷'][Math.floor(Math.random()*6)];
+      heart.style.left = (x + (Math.random() - 0.5) * 60) + 'px';
+      heart.style.top = y + 'px';
+      heart.style.fontSize = (20 + Math.random() * 20) + 'px';
+      container.appendChild(heart);
+      setTimeout(() => heart.remove(), 1500);
+    }, i * 60);
+  }
 }
 
 // ===== AVATAR =====
@@ -374,11 +399,15 @@ function renderPosts() {
         ${p.content ? `<div class="post-content">${escapeHtml(p.content)}</div>` : ''}
         ${mediaHtml}
         <div class="post-stats">
-          <span>❤️ ${p.likes || 0} lượt thích</span>
+          <span>❤️ ${formatNumber(p.likes || 0)} lượt thích</span>
+          <span>Nhấn để thích thêm</span>
         </div>
         <div class="post-actions">
-          <button class="post-action ${p.liked ? 'liked' : ''}" onclick="likePost(${p.id})">
-            ${p.liked ? '❤️' : '🤍'} Thích
+          <button class="post-action liked" onclick="likePost(${p.id}, event)">
+            ❤️ Thích
+          </button>
+          <button class="post-action like-x10" onclick="likeMany(${p.id}, 10, event)">
+            💖 x10
           </button>
           <button class="post-action" onclick="downloadPost(${p.id})">⬇️ Tải</button>
         </div>
@@ -387,15 +416,49 @@ function renderPosts() {
   }).join('');
 }
 
-async function likePost(id) {
+// ===== LIKE VÔ HẠN =====
+async function likePost(id, event) {
   const post = allPosts.find(p => p.id === id);
   if (!post) return;
-  post.liked = !post.liked;
-  post.likes = (post.likes || 0) + (post.liked ? 1 : -1);
-  if (post.likes < 0) post.likes = 0;
+  
+  // Like vô hạn - mỗi lần bấm +1
+  post.likes = (post.likes || 0) + 1;
+  post.liked = true;
+  
   await dbPut('posts', post);
   await loadAll();
   renderPosts();
+  
+  // Hiệu ứng
+  if (event) {
+    spawnHearts(event.clientX, event.clientY, 1);
+    animateButton(event.target);
+  }
+  showToast('❤️ +1');
+}
+
+async function likeMany(id, count, event) {
+  const post = allPosts.find(p => p.id === id);
+  if (!post) return;
+  
+  post.likes = (post.likes || 0) + count;
+  post.liked = true;
+  
+  await dbPut('posts', post);
+  await loadAll();
+  renderPosts();
+  
+  if (event) {
+    spawnHearts(event.clientX, event.clientY, 10);
+    animateButton(event.target);
+  }
+  showToast(`💖 +${count}`);
+}
+
+function animateButton(btn) {
+  if (!btn) return;
+  btn.classList.add('pulse');
+  setTimeout(() => btn.classList.remove('pulse'), 400);
 }
 
 async function deletePost(id) {
@@ -716,7 +779,6 @@ async function saveProfile() {
   const finalize = async () => {
     await dbPut('me', currentUser);
     updateMyAvatar();
-    // Update my posts
     for (const p of allPosts.filter(x => x.authorId === 'me')) {
       p.authorName = name;
       p.authorAvatar = currentUser.avatar;
@@ -786,14 +848,12 @@ function closeModal(id) {
 
 // ===== EVENT LISTENERS =====
 function bindEvents() {
-  // Post input
   const postInput = document.getElementById('postInput');
   if (postInput) {
     postInput.addEventListener('input', updatePostButtonState);
     postInput.addEventListener('keyup', updatePostButtonState);
   }
   
-  // Post attachments
   ['postImageInput', 'postVideoInput', 'postFileInput'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -808,7 +868,6 @@ function bindEvents() {
     });
   });
   
-  // Chat attachments
   ['chatImageInput', 'chatVideoInput', 'chatFileInput'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -831,14 +890,12 @@ function bindEvents() {
     });
   });
   
-  // Modal close on backdrop click
   document.querySelectorAll('.modal').forEach(m => {
     m.addEventListener('click', (e) => {
       if (e.target === m) m.classList.remove('active');
     });
   });
   
-  // ESC key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       document.querySelectorAll('.modal.active').forEach(m => m.classList.remove('active'));
