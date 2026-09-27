@@ -37,11 +37,7 @@ body {
   cursor: pointer;
 }
 
-.header-actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
+.header-actions { display: flex; gap: 10px; align-items: center; }
 
 .icon-btn {
   width: 42px; height: 42px;
@@ -131,11 +127,7 @@ body {
 .menu-item:hover { background: #3a3b3c; }
 .menu-item.active { background: #2d2e2f; color: #00d4ff; }
 
-.menu-item .icon {
-  font-size: 22px;
-  width: 30px;
-  text-align: center;
-}
+.menu-item .icon { font-size: 22px; width: 30px; text-align: center; }
 
 .sidebar-title {
   font-size: 0.85em;
@@ -190,11 +182,7 @@ body {
   padding-top: 12px;
 }
 
-.composer-tools {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-}
+.composer-tools { display: flex; gap: 5px; flex-wrap: wrap; }
 
 .tool-btn {
   background: transparent;
@@ -316,6 +304,7 @@ body {
   object-fit: contain;
   background: #000;
   display: block;
+  cursor: pointer;
 }
 
 .post-file {
@@ -355,6 +344,7 @@ body {
   display: flex;
   border-top: 1px solid #3a3b3c;
   padding: 5px;
+  gap: 3px;
 }
 
 .post-action {
@@ -370,12 +360,39 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: all 0.2s;
+  transition: all 0.15s;
   font-size: 0.9em;
+  user-select: none;
 }
 
 .post-action:hover { background: #3a3b3c; }
+.post-action:active { transform: scale(0.92); }
 .post-action.liked { color: #ff2d55; }
+
+/* Hiệu ứng khi like */
+.post-action.liked.pulse {
+  animation: heartBeat 0.4s;
+}
+
+@keyframes heartBeat {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.3); }
+  50% { transform: scale(0.95); }
+  75% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Nút like x10 */
+.post-action.like-x10 {
+  flex: 0.6;
+  background: linear-gradient(135deg, rgba(255,45,85,0.15), rgba(255,0,229,0.15));
+  color: #ff2d55;
+  font-weight: bold;
+}
+
+.post-action.like-x10:hover {
+  background: linear-gradient(135deg, rgba(255,45,85,0.3), rgba(255,0,229,0.3));
+}
 
 /* ===== RIGHT SIDEBAR ===== */
 .contacts-list { margin-top: 10px; }
@@ -510,6 +527,7 @@ body {
   border-radius: 10px;
   margin-top: 5px;
   display: block;
+  cursor: pointer;
 }
 
 .message-file {
@@ -539,11 +557,7 @@ body {
   background: #242526;
 }
 
-.chat-tools {
-  display: flex;
-  gap: 5px;
-  margin-bottom: 8px;
-}
+.chat-tools { display: flex; gap: 5px; margin-bottom: 8px; }
 
 .chat-tool {
   background: #3a3b3c;
@@ -561,10 +575,7 @@ body {
 
 .chat-tool:hover { background: #4e4f50; color: #00d4ff; }
 
-.chat-input-row {
-  display: flex;
-  gap: 8px;
-}
+.chat-input-row { display: flex; gap: 8px; }
 
 .chat-input {
   flex: 1;
@@ -619,10 +630,7 @@ body {
   border: 1px solid #3a3b3c;
 }
 
-.modal-content h2 {
-  margin-bottom: 20px;
-  color: #00d4ff;
-}
+.modal-content h2 { margin-bottom: 20px; color: #00d4ff; }
 
 .modal-content input,
 .modal-content textarea {
@@ -657,10 +665,7 @@ body {
   color: #fff;
 }
 
-.modal-btn.secondary {
-  background: #3a3b3c;
-  color: #e4e6eb;
-}
+.modal-btn.secondary { background: #3a3b3c; color: #e4e6eb; }
 
 .modal-btn:hover { transform: scale(1.05); }
 
@@ -724,6 +729,33 @@ body {
 }
 
 .empty-feed .icon { font-size: 70px; margin-bottom: 15px; }
+
+/* ===== HEART ANIMATION ===== */
+#heartContainer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.floating-heart {
+  position: absolute;
+  font-size: 30px;
+  animation: floatUp 1.2s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-150px) scale(1.8) rotate(30deg);
+  }
+}
 
 /* ===== TABLET ===== */
 @media (max-width: 1100px) {
